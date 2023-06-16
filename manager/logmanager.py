@@ -1,6 +1,6 @@
 import json
 import os
-import sys
+from copy import deepcopy
 
 
 class LogManager:
@@ -34,7 +34,7 @@ class LogManager:
         return:
             bool : Read pass/fail
         """
-        print("read start")
+        print("read Logfile")
         read_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
         read_file_name = f'{date}_{vnum}_{tnum}.json'
         if not read_file_name in os.listdir(read_file_path):
@@ -144,7 +144,7 @@ class LogManager:
             return {}
 
         key = self.getKey(date, vnum, tnum)
-        result = self.log_container[key]['schedules'].get(timestamp)
+        result = deepcopy(self.log_container[key]['schedules'].get(timestamp))
         if result == None:
             return None
 
@@ -158,7 +158,6 @@ class LogManager:
                 schedules.append(self.log_container[key]['prev_schedules'][j])
 
             result['logs'][i]['schedules'] = schedules + result['logs'][i]['schedules']
-
         return result
 
     def get_schedule_by_timestamp_delta(self, date: str, vnum: str, tnum: str, timestamp: int, delta: int) -> list:
