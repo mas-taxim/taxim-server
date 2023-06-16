@@ -34,10 +34,13 @@ class LogManager:
         return:
             bool : Read pass/fail
         """
-
+        print("read start")
         read_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
         read_file_name = f'{date}_{vnum}_{tnum}.json'
         if not read_file_name in os.listdir(read_file_path):
+            print(os.listdir(read_file_path))
+            print(read_file_name)
+            print("can not found file")
             return False
 
         key = self.getKey(date, vnum, tnum)
