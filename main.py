@@ -24,5 +24,4 @@ def getlog(date: str, vcnt: int, tcnt: int, timestamp: int):
 
 @app.get("/static-log-timestamp-delta")
 def getlog(date: str, vcnt: int, tcnt: int, timestamp: int, delta: int):
-    print(type(delta))
     return logmgr.get_log_by_timestamp_delta(date, vcnt, tcnt, timestamp, int(delta))
