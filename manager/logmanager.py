@@ -10,15 +10,6 @@ class LogManager:
     def __init__(self):
         self.log_container: dict[str, dict] = dict()
 
-    def is_unloaded_date(self, date: str) -> bool:
-        """
-        if already read log at date, return false
-
-        Args:
-            date (str): yyyymmdd
-        """
-        return not date in self.log_container
-
     def getKey(self, date: str, vnum: str, tnum: str) -> str:
         """
         generate Key value with data, vnum, tnum
@@ -44,26 +35,59 @@ class LogManager:
             bool : Read pass/fail
         """
 
-        key = self.getKey(date, vnum, tnum)
-        if not self.is_unloaded_date(key):
-            return True
-
         read_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
         read_file_name = f'{date}_{vnum}_{tnum}.json'
         if not read_file_name in os.listdir(read_file_path):
             return False
 
+        key = self.getKey(date, vnum, tnum)
+
         with open(read_file_path + "/" + read_file_name, 'r') as f:
             newLogFile = json.load(f)
             self.log_container[key]: dict[int, dict] = {'logs': dict(), 'schedules': dict(), 'prev_schedules': []}
 
+        # log dict that key is timestamp
         for log in newLogFile['logs']:
             self.log_container[key]['logs'][log['time']] = log
 
+        # schedule dict that key is timestamp
         for schedule in newLogFile['schedules']:
             self.log_container[key]['schedules'][schedule['time']] = schedule
 
         self.log_container[key]['prev_schedules'] = newLogFile['prev_schedules']
+
+        return True
+
+    def is_data_loaded(self, date: str, vnum: str, tnum: str) -> bool:
+        """
+        if already read log at date, return false
+
+        Args:
+            date (str): yyyymmdd
+        """
+
+        if self.getKey(date, vnum, tnum) in self.log_container:
+            return True
+
+        return self.readLog(date, vnum, tnum)
+
+    def get_log_by_date(self, date: str, vnum: str, tnum: str) -> dict:
+        """
+        get full log at date
+
+        Args:
+            date (str): yyyymmdd
+            vnum (str): vehicle num
+            tnum (str): task num
+
+        Returns:
+            dict: all log data
+        """
+
+        if self.is_data_loaded(date, vnum, tnum) == False:
+            return {}
+
+        return self.log_container[self.getKey(date, vnum, tnum)]
 
     def get_log_by_timestamp(self, date: str, vnum: str, tnum: str, timestamp: int) -> dict:
         """
@@ -78,13 +102,10 @@ class LogManager:
         Returns:
             dict: log data untill timestamp to timestamp
         """
-        key = self.getKey(date, vnum, tnum)
+        if self.is_data_loaded(date, vnum, tnum) == False:
+            return {}
 
-        if self.is_unloaded_date(key):
-            flag = self.readLog(date, vnum, tnum)
-            if flag == False:
-                return {}
-        return self.log_container[key]['logs'][timestamp]
+        return self.log_container[self.getKey(date, vnum, tnum)]['logs'].get(timestamp)
 
     def get_log_by_timestamp_delta(self, date: str, vnum: str, tnum: str, timestamp: int, delta: int) -> dict:
         """
@@ -101,45 +122,53 @@ class LogManager:
             dict: log data untill timestamp to timestamp + delta
         """
 
-        key = self.getKey(date, vnum, tnum)
-
-        if self.is_unloaded_date(key):
-            flag = self.readLog(date, vnum, tnum)
-            if flag == False:
-                return {}
+        if self.is_data_loaded(date, vnum, tnum) == False:
+            return []
 
         result = []
         for i in range(0, delta):
             cur_timestamp = timestamp + (i * self.UNIT_TIME)
-            if cur_timestamp in self.log_container[key]['logs']:
-                result.append(self.log_container[key]['logs'][cur_timestamp])
-            else:
-                print("timestamp key error")
+            cur_logs = self.get_log_by_timestamp(date, vnum, tnum, cur_timestamp)
+            if cur_logs == None:
+                break
+            result.append(cur_logs)
 
         return result
 
-    def get_log_by_date(self, date: str, vnum: str, tnum: str) -> dict:
-        """
-        get full log at date
+    def get_schedule_by_timestamp(self, date: str, vnum: str, tnum: str, timestamp: int) -> dict:
 
-        Args:
-            date (str): yyyymmdd
-            vnum (str): vehicle num
-            tnum (str): task num
-
-        Returns:
-            dict: all log data
-        """
+        if self.is_data_loaded(date, vnum, tnum) == False:
+            return {}
 
         key = self.getKey(date, vnum, tnum)
+        result = self.log_container[key]['schedules'].get(timestamp)
+        if result == None:
+            return None
 
-        if self.is_unloaded_date(key):
-            flag = self.readLog(date, vnum, tnum)
-            if flag == False:
-                return {}
+        for i in range(0, len(result['logs'])):
+            prev_schedules = result['logs'][i]['prev_schedules']
+            if len(prev_schedules) == 0:
+                continue
 
-        return self.log_container[key]
+            schedules = []
+            for j in prev_schedules:
+                schedules.append(self.log_container[key]['prev_schedules'][j])
 
-    def get_schedule_by_timestamp(self, date: str, vnum: str, tnum: str, timestamp: int):
+            result['logs'][i]['schedules'] = schedules + result['logs'][i]['schedules']
 
-        return None
+        return result
+
+    def get_schedule_by_timestamp_delta(self, date: str, vnum: str, tnum: str, timestamp: int, delta: int) -> list:
+
+        if self.is_data_loaded(date, vnum, tnum) == False:
+            return []
+
+        result = []
+        for i in range(0, delta):
+            cur_timestamp = timestamp + (i * self.UNIT_TIME)
+            cur_schedule = self.get_schedule_by_timestamp(date, vnum, tnum, cur_timestamp)
+            if cur_schedule == None:
+                break
+            result.append(cur_schedule)
+
+        return result
