@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import manager.logmanager as logmanager
 import manager.chat as chat
 from manager.time import transform
-import mvs.mvs as mvs
+# import mvs.mvs as mvs
 
 from datetime import datetime
 
@@ -146,7 +146,9 @@ def get_chat(text: str = "Hi Taxim"):
     return chat.hello(text)
 
 
+'''
 @app.get("/run-simulator")
 def run_simulator(vehicles: int = Query(...), tasks: int = Query(...)):
     mvs.run(vehicle_num=vehicles, task_num=tasks)
     return "Complete"
+'''
