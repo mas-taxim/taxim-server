@@ -4,6 +4,9 @@ import sys
 
 
 class LogManager:
+
+    UNIT_TIME = 60000
+
     def __init__(self):
         self.log_container: dict[str, dict] = dict()
 
@@ -24,16 +27,43 @@ class LogManager:
             self.log_container[key]: dict[int, dict] = {'logs': dict(), 'schedules': dict()}
 
             for log in newLogFile['logs']:
-                self.log_container[key]['logs'][str(log['time'])] = {'vehicles': log['vehicles'], 'tasks': log['tasks']}
+                self.log_container[key]['logs'][log['time']] = {'vehicles': log['vehicles'], 'tasks': log['tasks']}
 
-            print(self.log_container[key]['logs']['1675263660000'])
-
-    def get_log_by_timestamp(self, date: str, vnum: str, tnum: str, timestamp: str):
+    def get_log_by_timestamp(self, date: str, vnum: str, tnum: str, timestamp: int):
         key = self.getKey(date, vnum, tnum)
         if self.is_unloaded_date(key):
             self.readLog(date, vnum, tnum)
-        print(type(timestamp))
         return self.log_container[key]['logs'][timestamp]
+
+    def get_log_by_timestamp_delta(self, date: str, vnum: str, tnum: str, timestamp: int, delta: int) -> dict:
+        """
+        get log info by timestamp ~ timestamp + delta
+
+        Args:
+            date (str): yyyymmdd
+            vnum (str): vehicle num
+            tnum (str): task num
+            timestamp (int): timestamp
+            delta (int): minute
+
+        Returns:
+            dict: log data untill timestamp to timestamp + delta
+        """
+
+        key = self.getKey(date, vnum, tnum)
+
+        if self.is_unloaded_date(key):
+            self.readLog(date, vnum, tnum)
+
+        result = []
+        for i in range(0, delta):
+            cur_timestamp = timestamp + (i * self.UNIT_TIME)
+            if cur_timestamp in self.log_container[key]['logs']:
+                result.append({'timestamp': cur_timestamp, **self.log_container[key]['logs'][cur_timestamp]})
+            else:
+                print("timestamp key error")
+
+        return result
 
     def get_log_by_date(self, date: str, vnum: str, tnum: str):
         key = self.getKey(date, vnum, tnum)
