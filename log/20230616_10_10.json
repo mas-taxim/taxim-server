@@ -29,6 +29,59 @@
                     "status": 0
                 }
             ]
+        },
+        {
+            "time": 1675263720000,
+            "vehicles": [
+                {
+                    "name": "V0",
+                    "lat": 37.47942501,
+                    "lng": 126.9280721,
+                    "status": 2,
+                    "allocated_id": 0
+                },
+                {
+                    "name": "V1",
+                    "lat": 37.47942501,
+                    "lng": 126.9280721,
+                    "status": 0,
+                    "allocated_id": null
+                }
+            ],
+            "tasks": [
+                {
+                    "id": 0,
+                    "pick_lat": 37.56883496,
+                    "pick_lng": 127.0096554,
+                    "drop_lat": 37.54508123,
+                    "drop_lng": 127.0853662,
+                    "time": 2,
+                    "status": 2
+                }
+            ]
+        },
+        {
+            "time": 1675263780000,
+            "vehicles": [
+                {
+                    "name": "V0",
+                    "lat": 37.47869111687446,
+                    "lng": 126.92235340226678,
+                    "status": 2,
+                    "allocated_id": 0
+                }
+            ],
+            "tasks": [
+                {
+                    "id": 0,
+                    "pick_lat": 37.56883496,
+                    "pick_lng": 127.0096554,
+                    "drop_lat": 37.54508123,
+                    "drop_lng": 127.0853662,
+                    "time": 2,
+                    "status": 2
+                }
+            ]
         }
     ],
     "schedules": [
