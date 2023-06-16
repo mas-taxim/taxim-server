@@ -11,12 +11,37 @@ class LogManager:
         self.log_container: dict[str, dict] = dict()
 
     def is_unloaded_date(self, date: str) -> bool:
+        """
+        if already read log at date, return false
+
+        Args:
+            date (str): yyyymmdd
+        """
         return not date in self.log_container
 
-    def getKey(self, date: str, vnum: str, tnum: str):
+    def getKey(self, date: str, vnum: str, tnum: str) -> str:
+        """
+        generate Key value with data, vnum, tnum
+
+        Args:
+            date (str): yyyymmdd
+            vnum (str): vehicle number
+            tnum (str): task number
+        Returns:
+            str: key string
+        """
         return f"{date}{vnum}{tnum}"
 
     def readLog(self, date: str, vnum: str, tnum: str):
+        """
+        read log data
+
+        Args:
+            date (str): yyyymmdd
+            vnum (str): vehicle number
+            tnum (str): task number
+        """
+
         key = self.getKey(date, vnum, tnum)
         if not self.is_unloaded_date(key):
             return
@@ -65,7 +90,18 @@ class LogManager:
 
         return result
 
-    def get_log_by_date(self, date: str, vnum: str, tnum: str):
+    def get_log_by_date(self, date: str, vnum: str, tnum: str) -> dict:
+        """
+        get full log at date
+
+        Args:
+            date (str): yyyymmdd
+            vnum (str): vehicle num
+            tnum (str): task num
+
+        Returns:
+            dict: all log data
+        """
         key = self.getKey(date, vnum, tnum)
         if self.is_unloaded_date(key):
             self.readLog(date, vnum, tnum)
