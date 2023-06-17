@@ -143,7 +143,7 @@ def getschedule_by_timestamp_delta(
 
 @app.get("/chat")
 def get_chat(text: str = "Hi Taxim"):
-    return chat.hello(text)
+    return chat.response(text)
 
 
 '''
