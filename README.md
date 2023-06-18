@@ -31,6 +31,11 @@ conda install --file requirements.conda.txt
 uvicorn main:app --reload
 ```
 
+### more options
+```
+uvicorn main:app --host 0.0.0.0 --reload --log-level=debug
+```
+
 ### window
 ```bash
 run.bat
