@@ -1,6 +1,6 @@
 from typing import Union
 
-from fastapi import FastAPI, Query, Path
+from fastapi import FastAPI, Query, Path, Body
 from fastapi.middleware.cors import CORSMiddleware
 
 import manager.logmanager as logmanager
@@ -149,9 +149,18 @@ def getschedule_by_timestamp_delta(
     return logmgr.get_schedule_by_timestamp_delta(date, vehicles, tasks, timestamp, delta)
 
 
-@app.get("/chat")
-def get_chat(text: str = "Hi Taxim"):
-    return chat.response(text)
+@app.post("/chat")
+def send_chat_message(
+        text: str = Body("Hi Taxim")):
+    logger.debug(text)
+    response: dict = chat.response(text)
+    text = response.get('text')
+    focus = response.get('focus')
+    result = dict(text=text, action='nothing', data=None)
+    if focus:
+        result['action'] = 'focus'
+        result['data'] = focus
+    return result
 
 
 '''
