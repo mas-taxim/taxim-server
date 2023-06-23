@@ -1,3 +1,7 @@
 [submodule "mvs"]
 	path = mvs
 	url = https://github.com/mas-taxim/multi-vehicle-simulator.git
+[submodule "front"]
+	path = front
+	url = https://github.com/mas-taxim/taxim-viewer
+	branch = gh-pages
